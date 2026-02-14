@@ -1,0 +1,53 @@
+# ─── Byte-compiled / optimised / DLL files ───
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ─── C extensions ───
+*.so
+
+# ─── Distribution / packaging ───
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# ─── Virtual environments ───
+venv/
+env/
+.venv/
+.env/
+
+# ─── Jupyter Notebook checkpoints ───
+.ipynb_checkpoints/
+
+# ─── IDE / editor settings ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── OS-generated files ───
+.DS_Store
+Thumbs.db
+
+# ─── Environment variables ───
+.env
+*.env
+
+# ─── Model artefacts (large binaries) ───
+models/*.pkl
+models/*.joblib
+models/*.h5
+
+# ─── Data (keep raw placeholder, ignore large files) ───
+data/processed/*
+!data/processed/.gitkeep
+
+# ─── Reports output ───
+reports/figures/*
+!reports/figures/.gitkeep
+reports/results/*
+!reports/results/.gitkeep
