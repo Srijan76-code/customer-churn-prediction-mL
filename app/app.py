@@ -89,8 +89,8 @@ div[data-testid="stMetric"] { display: none !important; }
 }
 
 .stButton > button[kind="primary"] {
-  background-color: var(--purple) !important;
-  border-color: var(--purple) !important;
+  background-color: #9061F9 !important;
+  border-color: #9061F9 !important;
   color: white !important;
   border-radius: 10px !important;
   font-weight: 600 !important;
