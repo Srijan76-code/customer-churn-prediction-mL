@@ -88,6 +88,21 @@ div[data-testid="stMetric"] { display: none !important; }
   transform: translateY(-1px);
 }
 
+.stButton > button[kind="primary"] {
+  background-color: var(--purple) !important;
+  border-color: var(--purple) !important;
+  color: white !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  transition: all 0.25s ease;
+}
+.stButton > button[kind="primary"]:hover {
+  background-color: #9061F9 !important;
+  border-color: #9061F9 !important;
+  box-shadow: 0 0 20px rgba(167,139,250,0.25) !important;
+  transform: translateY(-1px);
+}
+
 [data-testid="stDataFrame"] {
   border-radius: 14px;
   overflow: hidden;
@@ -378,20 +393,18 @@ def ranked_list_html(items, bar_color, max_val=None):
 # ============================================
 #  Main Page - Data Source
 # ============================================
+st.markdown("<div style='margin-top: 3.5rem'></div>", unsafe_allow_html=True)
 with st.container(border=True):
-    st.markdown(section_header("Data Source", ACCENT_BLUE), unsafe_allow_html=True)
-    
     col_left, col_right = st.columns([1, 1], gap="large")
 
     with col_left:
-        # Pushing the radio buttons slightly down to match the vertical center with the input fields
-        st.markdown("<div style='margin-top: 10px'></div>", unsafe_allow_html=True)
+        # Pushing the radio buttons down to match the vertical center with the input fields
+        st.markdown("<div style='margin-top: 28px'></div>", unsafe_allow_html=True)
         data_mode = st.radio(
             "Choose input",
             ["Upload CSV", "Generate Synthetic"],
             index=0, label_visibility="collapsed",
         )
-
     df_input = None
 
     with col_right:
@@ -402,7 +415,7 @@ with st.container(border=True):
 
         else:
             n_syn = st.number_input("Customers to generate", 10, 10000, 200, step=50)
-            if st.button("Generate", type="primary", use_container_width=True):
+            if st.button("Generate + Predict", type="primary", use_container_width=True):
                 df_input = generate_random_customers(int(n_syn))
                 st.session_state["syn_data"] = df_input
             if "syn_data" in st.session_state and df_input is None:
@@ -583,13 +596,11 @@ st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 header_left, header_right = st.columns([3.5, 1.5])
 with header_left:
     st.markdown(
-        '<p style="color:#64748B;font-size:0.78rem;margin:0 0 2px 0;letter-spacing:1px;'
-        'text-transform:uppercase;font-weight:500">Churn Analytics</p>'
         '<h1 style="margin:0;font-size:1.75rem;font-weight:700;color:#F1F5F9;'
         'font-family:-apple-system,system-ui,sans-serif;letter-spacing:-0.3px">'
-        'Executive Summary</h1>'
+        'Churn Analytics</h1>'
         '<p style="color:#64748B;font-size:0.82rem;margin-top:4px">'
-        'Predicted churn analysis &bull; Model threshold 30%</p>',
+        'Predicted churn analysis</p>',
         unsafe_allow_html=True,
     )
 with header_right:
