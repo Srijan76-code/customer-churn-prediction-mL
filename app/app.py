@@ -1,9 +1,3 @@
-"""
-app.py  –  Premium Executive Churn Intelligence Dashboard
-Connects to the trained ML pipeline and presents predictions
-in a luxury dark-theme layout with glassmorphism, sparklines, and animations.
-"""
-
 import sys, os, textwrap
 import streamlit as st
 import pandas as pd
@@ -26,7 +20,7 @@ st.set_page_config(
 )
 
 # ============================================
-#  Premium CSS  – dark theme + system fonts
+#   CSS CONFIGURATION
 # ============================================
 DARK_CSS = """
 <style>
@@ -51,8 +45,11 @@ DARK_CSS = """
   --rose:        #FB7185;
 }
 
-html, body, [class*="css"] {
+html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+}
+
+[class*="css"] {
   color: var(--text-1) !important;
 }
 
@@ -64,8 +61,9 @@ section[data-testid="stSidebar"] {
   background: linear-gradient(180deg, #0D1120 0%, #111827 100%) !important;
   border-right: 1px solid var(--border) !important;
 }
-section[data-testid="stSidebar"] * {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+
+i, .material-symbols-rounded {
+  font-family: 'Material Symbols Rounded' !important;
 }
 
 .block-container {
@@ -203,7 +201,7 @@ st.markdown(DARK_CSS, unsafe_allow_html=True)
 
 
 # ============================================
-#  Helper - run predictions & enrich
+#  Helper - run predictions 
 # ============================================
 @st.cache_data(show_spinner="Running churn model ...")
 def run_predictions(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -267,7 +265,7 @@ def generate_random_customers(n: int) -> pd.DataFrame:
 
 
 # ============================================
-#  Plotly dark chart defaults (premium palette)
+#  Plotly dark chart defaults 
 # ============================================
 CARD_BG    = "#1A1F2E"
 GRID_CLR   = "rgba(255,255,255,0.05)"
@@ -324,7 +322,7 @@ def sparkline_svg(data, color, w=200, h=32):
 
 
 # ============================================
-#  KPI card HTML builder (with sparkline)
+#  KPI card (with sparkline)
 # ============================================
 def kpi_card(label, value, color, icon="", sub="", spark_data=None, delay=0):
     sub_html = f'<div class="kpi-sub">{sub}</div>' if sub else ""
@@ -378,43 +376,44 @@ def ranked_list_html(items, bar_color, max_val=None):
 
 
 # ============================================
-#  Sidebar - Data Source
+#  Main Page - Data Source
 # ============================================
-st.sidebar.markdown("#### Data Source")
-data_mode = st.sidebar.radio(
-    "Choose input",
-    ["Default Dataset", "Upload CSV", "Generate Synthetic"],
-    index=0, label_visibility="collapsed",
-)
+with st.container(border=True):
+    st.markdown(section_header("Data Source", ACCENT_BLUE), unsafe_allow_html=True)
+    
+    col_left, col_right = st.columns([1, 1], gap="large")
 
-df_input = None
+    with col_left:
+        # Pushing the radio buttons slightly down to match the vertical center with the input fields
+        st.markdown("<div style='margin-top: 10px'></div>", unsafe_allow_html=True)
+        data_mode = st.radio(
+            "Choose input",
+            ["Upload CSV", "Generate Synthetic"],
+            index=0, label_visibility="collapsed",
+        )
 
-if data_mode == "Default Dataset":
-    default_path = os.path.join(PROJECT_ROOT, "data", "raw", "telecom_customer_churn.csv")
-    if os.path.exists(default_path):
-        df_input = pd.read_csv(default_path)
-    else:
-        st.sidebar.error("Default dataset not found.")
+    df_input = None
 
-elif data_mode == "Upload CSV":
-    uploaded = st.sidebar.file_uploader("Upload customer CSV", type=["csv"])
-    if uploaded:
-        df_input = pd.read_csv(uploaded)
+    with col_right:
+        if data_mode == "Upload CSV":
+            uploaded = st.file_uploader("Upload customer CSV", type=["csv"])
+            if uploaded:
+                df_input = pd.read_csv(uploaded)
 
-else:
-    n_syn = st.sidebar.number_input("Customers to generate", 10, 10000, 200, step=50)
-    if st.sidebar.button("Generate", use_container_width=True):
-        df_input = generate_random_customers(int(n_syn))
-        st.session_state["syn_data"] = df_input
-    elif "syn_data" in st.session_state:
-        df_input = st.session_state["syn_data"]
+        else:
+            n_syn = st.number_input("Customers to generate", 10, 10000, 200, step=50)
+            if st.button("Generate", type="primary", use_container_width=True):
+                df_input = generate_random_customers(int(n_syn))
+                st.session_state["syn_data"] = df_input
+            if "syn_data" in st.session_state and df_input is None:
+                df_input = st.session_state["syn_data"]
 
 if df_input is None:
     st.markdown(
         '<div style="text-align:center;padding:120px 0;">'
         '<h2 style="color:#94A3B8;font-weight:500;font-family:-apple-system,system-ui,sans-serif">'
         'Customer Churn Intelligence</h2>'
-        '<p style="color:#64748B;font-size:0.9rem">Select a data source in the sidebar to begin.</p>'
+        '<p style="color:#64748B;font-size:0.9rem">Select a data source above to begin.</p>'
         '</div>', unsafe_allow_html=True)
     st.stop()
 
@@ -428,7 +427,6 @@ except Exception as exc:
 # ============================================
 #  Sidebar - Filters
 # ============================================
-st.sidebar.markdown("---")
 st.sidebar.markdown("#### Filters")
 
 filter_contract = st.sidebar.multiselect(
@@ -468,6 +466,116 @@ mask = (
 )
 dff = df[mask].copy()
 
+
+# ============================================
+#  Data Overview (Results & High Risk)
+# ============================================
+st.markdown('<br>', unsafe_allow_html=True)
+data_left, data_right = st.columns(2, gap="medium")
+
+with data_left:
+    st.markdown(section_header("All Customers", ACCENT_BLUE), unsafe_allow_html=True)
+    with st.container(border=True):
+        res_cols = ["Customer ID", "Probability", "Risk Bucket", "Churned"]
+        res_df = dff[res_cols].copy()
+        
+        styled_res = res_df.style.set_properties(**{
+            'background-color': '#0F1420',
+            'color': '#F1F5F9',
+            'border-color': 'rgba(255,255,255,0.06)'
+        }).set_table_styles([{
+            'selector': 'th',
+            'props': [('background-color', '#0F1420'), ('color', '#94A3B8'), ('border-color', 'rgba(255,255,255,0.06)')]
+        }])
+        
+        st.dataframe(
+            styled_res,
+            use_container_width=True,
+            height=650,
+            column_config={
+                "Customer ID": st.column_config.TextColumn("Customer ID", width="medium"),
+                "Probability": st.column_config.TextColumn("Churn Prob.", width="small"),
+                "Risk Bucket": st.column_config.TextColumn("Risk", width="small"),
+                "Churned": st.column_config.TextColumn("Churned", width="small"),
+            },
+        )
+        
+        dl_cols = [
+            "Customer ID", "Gender", "Age", "Married",
+            "Number of Dependents", "Number of Referrals",
+            "Tenure in Months", "Offer", "Phone Service",
+            "Internet Service", "Internet Type", "Contract",
+            "Paperless Billing", "Payment Method",
+            "Monthly Charge", "Total Charges", "Total Revenue",
+            "Probability", "Churned",
+        ]
+        dl_cols_present = [c for c in dl_cols if c in dff.columns]
+        csv_full = dff[dl_cols_present].to_csv(index=False).encode("utf-8")
+        st.download_button(
+            "\u2B07  Download Full Dataset",
+            data=csv_full,
+            file_name="churn_predictions.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
+
+with data_right:
+    st.markdown(section_header("High Risk Customers", ACCENT_PURPLE), unsafe_allow_html=True)
+    action_cols = [
+        "Customer ID", "Probability", "Risk Bucket",
+        "Tenure in Months", "Number of Referrals",
+        "Monthly Charge", "Contract",
+    ]
+    high_risk = (
+        dff[dff["Risk Bucket"].isin(["High", "Medium"])]
+        .sort_values("Probability_Num", ascending=False)[action_cols]
+        .reset_index(drop=True)
+    )
+    with st.container(border=True):
+        if high_risk.empty:
+            st.markdown(
+                '<p style="color:#64748B;text-align:center;padding:30px 0">'
+                'No medium/high risk customers in current filter selection.</p>',
+                unsafe_allow_html=True,
+            )
+            st.markdown('<div style="height: 587px;"></div>', unsafe_allow_html=True)
+        else:
+            styled_hr = high_risk.style.set_properties(**{
+                'background-color': '#0F1420',
+                'color': '#F1F5F9',
+                'border-color': 'rgba(255,255,255,0.06)'
+            }).set_table_styles([{
+                'selector': 'th',
+                'props': [('background-color', '#0F1420'), ('color', '#94A3B8'), ('border-color', 'rgba(255,255,255,0.06)')]
+            }])
+            st.dataframe(
+                styled_hr,
+                use_container_width=True,
+                height=650,
+                column_config={
+                    "Customer ID": st.column_config.TextColumn("Customer", width="medium"),
+                    "Probability": st.column_config.TextColumn("Prob.", width="small"),
+                    "Risk Bucket": st.column_config.TextColumn("Risk", width="small"),
+                    "Tenure in Months": st.column_config.NumberColumn("Tenure", width="small"),
+                    "Number of Referrals": st.column_config.NumberColumn("Refs", width="small"),
+                    "Monthly Charge": st.column_config.NumberColumn("Monthly", format="$%.2f", width="small"),
+                    "Contract": st.column_config.TextColumn("Contract", width="medium"),
+                },
+            )
+        
+        if not high_risk.empty:
+            csv_hr = high_risk.to_csv(index=False).encode("utf-8")
+            st.download_button(
+                "\u2B07  Download High Risk",
+                data=csv_hr,
+                file_name="high_risk_customers.csv",
+                mime="text/csv",
+                use_container_width=True,
+            )
+        else:
+            st.button("\u2B07  Download High Risk", disabled=True, use_container_width=True)
+
+st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 # ============================================
 #  HEADER
@@ -645,88 +753,4 @@ with r3b:
 
 
 
-# ============================================
-#  ROW 5 - High Risk Customers
-# ============================================
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
-st.markdown(section_header("High Risk Customers", ACCENT_PURPLE), unsafe_allow_html=True)
 
-action_cols = [
-    "Customer ID", "Probability", "Risk Bucket",
-    "Tenure in Months", "Number of Referrals",
-    "Monthly Charge", "Contract",
-]
-high_risk = (
-    dff[dff["Risk Bucket"].isin(["High", "Medium"])]
-    .sort_values("Probability_Num", ascending=False)[action_cols]
-    .reset_index(drop=True)
-)
-
-with st.container(border=True):
-    if high_risk.empty:
-        st.markdown(
-            '<p style="color:#64748B;text-align:center;padding:30px 0">'
-            'No medium/high risk customers in current filter selection.</p>',
-            unsafe_allow_html=True,
-        )
-    else:
-        styled_df = high_risk.style.set_properties(**{
-            'background-color': '#0F1420',
-            'color': '#F1F5F9',
-            'border-color': 'rgba(255,255,255,0.06)'
-        }).set_table_styles([{
-            'selector': 'th',
-            'props': [('background-color', '#0F1420'), ('color', '#94A3B8'), ('border-color', 'rgba(255,255,255,0.06)')]
-        }])
-        st.dataframe(
-            styled_df,
-            use_container_width=True,
-            height=380,
-            column_config={
-                "Customer ID": st.column_config.TextColumn("Customer ID", width="medium"),
-                "Probability": st.column_config.TextColumn("Churn Prob.", width="small"),
-                "Risk Bucket": st.column_config.TextColumn("Risk", width="small"),
-                "Tenure in Months": st.column_config.NumberColumn("Tenure (mo)", width="small"),
-                "Number of Referrals": st.column_config.NumberColumn("Referrals", width="small"),
-                "Monthly Charge": st.column_config.NumberColumn("Monthly ($)", format="$%.2f", width="small"),
-                "Contract": st.column_config.TextColumn("Contract", width="medium"),
-            },
-        )
-
-
-# ============================================
-#  Download buttons
-# ============================================
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
-
-dl_cols = [
-    "Customer ID", "Gender", "Age", "Married",
-    "Number of Dependents", "Number of Referrals",
-    "Tenure in Months", "Offer", "Phone Service",
-    "Internet Service", "Internet Type", "Contract",
-    "Paperless Billing", "Payment Method",
-    "Monthly Charge", "Total Charges", "Total Revenue",
-    "Probability", "Churned",
-]
-dl_cols_present = [c for c in dl_cols if c in dff.columns]
-csv_full = dff[dl_cols_present].to_csv(index=False).encode("utf-8")
-
-d1, d2, _ = st.columns([1.6, 1.6, 4.8], gap="medium")
-with d1:
-    st.download_button(
-        "\u2B07  Download Full Results",
-        data=csv_full,
-        file_name="churn_predictions.csv",
-        mime="text/csv",
-        use_container_width=True,
-    )
-with d2:
-    if not high_risk.empty:
-        csv_hr = high_risk.to_csv(index=False).encode("utf-8")
-        st.download_button(
-            "\u2B07  Download High Risk Only",
-            data=csv_hr,
-            file_name="high_risk_customers.csv",
-            mime="text/csv",
-            use_container_width=True,
-        )
