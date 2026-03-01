@@ -200,10 +200,12 @@ Evaluated depths from 2 to 20, finding the optimal balance at **Depth 14**.
 
 ## Application Screenshots
 
-|                                        Dashboard                                         |                                     Prediction Results                                     |
-| :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
-| <img src="PLACEHOLDER_FOR_DASHBOARD_SCREENSHOT" width="100%" alt="Dashboard Screenshot"> | <img src="PLACEHOLDER_FOR_PREDICTION_SCREENSHOT" width="100%" alt="Prediction Screenshot"> |
-|                           _System Overview & Upload Interface_                           |                         _Batch Prediction & Probabilities output_                          |
+<p align="center">
+  <img src="data/images/dashboard.png" alt="Dashboard Overview" width="100%">
+</p>
+<p align="center">
+  <em>System Overview & Upload Interface</em>
+</p>
 
 ## Installation & Usage
 
