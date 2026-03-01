@@ -1,10 +1,6 @@
 <h1 align="center">Telecom Customer Churn Prediction System</h1>
 
 <p align="center">
-  <img src="PLACEHOLDER_FOR_HERO_IMAGE_OR_SCREENSHOT" alt="Project Banner" width="100%">
-</p>
-
-<p align="center">
     <a href="PLACEHOLDER_FOR_HOSTED_LINK" target="_blank">
         <img src="https://img.shields.io/badge/Live_Demo-Hosted_App-blue?style=for-the-badge&logo=appveyor" alt="Live Demo">
     </a>
