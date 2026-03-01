@@ -82,7 +82,7 @@ The original `Customer Status`, along with leakage-prone columns (`Churn Categor
 - **Churned:** ~26.5%
 
 <p align="center">
-  <img src="images/class_imbalance.png" alt="Class Imbalance Distribution" width="60%">
+  <img src="data/images/class_imbalance.png" alt="Class Imbalance Distribution" width="60%">
 </p>
 
 Because of this imbalance, a naive model that predicts "Stayed" every time would achieve ~73% accuracy. Thus, we evaluate based on **ROC-AUC, Recall, and F1-score**.
@@ -162,7 +162,7 @@ By lowering the decision threshold from 0.5 to 0.3, we traded a small drop in ov
   _(Only 63 churners missed!)_
 
 <p align="center">
-  <img src="images/cm_logistic_regression.png" alt="Confusion Matrix - Logistic Regression" width="60%">
+  <img src="data/images/cm_logistic_regression.png" alt="Confusion Matrix - Logistic Regression" width="60%">
 </p>
 
 ### Decision Tree — Depth Tuning
@@ -174,7 +174,7 @@ Evaluated depths from 2 to 20, finding the optimal balance at **Depth 14**.
 - Depths beyond 15 plateaued, indicating model capacity saturation.
 
 <p align="center">
-  <img src="images/cm_decision_tree.png" alt="Confusion Matrix - Decision Tree" width="60%">
+  <img src="data/images/cm_decision_tree.png" alt="Confusion Matrix - Decision Tree" width="60%">
 </p>
 
 ---
