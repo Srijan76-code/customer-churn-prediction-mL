@@ -1,7 +1,7 @@
 <h1 align="center">Telecom Customer Churn Prediction System</h1>
 
 <p align="center">
-    <a href="PLACEHOLDER_FOR_HOSTED_LINK" target="_blank">
+    <a href="https://customer-churn-prediction-capstone.streamlit.app/" target="_blank">
         <img src="https://img.shields.io/badge/Live_Demo-Hosted_App-blue?style=for-the-badge&logo=appveyor" alt="Live Demo">
     </a>
     <br/>
