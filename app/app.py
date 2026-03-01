@@ -402,16 +402,22 @@ with st.container(border=True):
         st.markdown("<div style='margin-top: 28px'></div>", unsafe_allow_html=True)
         data_mode = st.radio(
             "Choose input",
-            ["Upload CSV", "Generate Synthetic"],
+            ["Upload CSV / Excel", "Generate Synthetic"],
             index=0, label_visibility="collapsed",
         )
     df_input = None
 
     with col_right:
-        if data_mode == "Upload CSV":
-            uploaded = st.file_uploader("Upload customer CSV", type=["csv"])
+        if data_mode == "Upload CSV / Excel":
+            uploaded = st.file_uploader("Upload customer data", type=["csv", "xlsx"])
             if uploaded:
-                df_input = pd.read_csv(uploaded)
+                try:
+                    if uploaded.name.endswith(".xlsx"):
+                        df_input = pd.read_excel(uploaded)
+                    else:
+                        df_input = pd.read_csv(uploaded)
+                except Exception:
+                    st.error("Error: Could not read the uploaded data. Please ensure it is a valid, properly formatted CSV or Excel file.")
 
         else:
             n_syn = st.number_input("Customers to generate", 10, 10000, 200, step=50)
@@ -433,7 +439,7 @@ if df_input is None:
 try:
     df = run_predictions(df_input)
 except Exception as exc:
-    st.error(f"Prediction failed: {exc}")
+    st.error(f"Please upload a valid dataset.")
     st.stop()
 
 
@@ -484,14 +490,28 @@ dff = df[mask].copy()
 #  Data Overview (Results & High Risk)
 # ============================================
 st.markdown('<br>', unsafe_allow_html=True)
+
+res_cols = ["Customer ID", "Probability", "Risk Bucket", "Churned"]
+res_df = dff[res_cols].copy()
+res_height = min(650, max(1, len(res_df)) * 36 + 43)
+
+action_cols = [
+    "Customer ID", "Probability", "Risk Bucket",
+    "Tenure in Months", "Number of Referrals",
+    "Monthly Charge", "Contract",
+]
+high_risk = (
+    dff[dff["Risk Bucket"].isin(["High", "Medium"])]
+    .sort_values("Probability_Num", ascending=False)[action_cols]
+    .reset_index(drop=True)
+)
+hr_height = min(650, max(1, len(high_risk)) * 36 + 43)
+
 data_left, data_right = st.columns(2, gap="medium")
 
 with data_left:
     st.markdown(section_header("All Customers", ACCENT_BLUE), unsafe_allow_html=True)
     with st.container(border=True):
-        res_cols = ["Customer ID", "Probability", "Risk Bucket", "Churned"]
-        res_df = dff[res_cols].copy()
-        
         styled_res = res_df.style.set_properties(**{
             'background-color': '#0F1420',
             'color': '#F1F5F9',
@@ -504,7 +524,7 @@ with data_left:
         st.dataframe(
             styled_res,
             use_container_width=True,
-            height=650,
+            height=res_height,
             column_config={
                 "Customer ID": st.column_config.TextColumn("Customer ID", width="medium"),
                 "Probability": st.column_config.TextColumn("Churn Prob.", width="small"),
@@ -534,16 +554,6 @@ with data_left:
 
 with data_right:
     st.markdown(section_header("High Risk Customers", ACCENT_PURPLE), unsafe_allow_html=True)
-    action_cols = [
-        "Customer ID", "Probability", "Risk Bucket",
-        "Tenure in Months", "Number of Referrals",
-        "Monthly Charge", "Contract",
-    ]
-    high_risk = (
-        dff[dff["Risk Bucket"].isin(["High", "Medium"])]
-        .sort_values("Probability_Num", ascending=False)[action_cols]
-        .reset_index(drop=True)
-    )
     with st.container(border=True):
         if high_risk.empty:
             st.markdown(
@@ -551,7 +561,6 @@ with data_right:
                 'No medium/high risk customers in current filter selection.</p>',
                 unsafe_allow_html=True,
             )
-            st.markdown('<div style="height: 587px;"></div>', unsafe_allow_html=True)
         else:
             styled_hr = high_risk.style.set_properties(**{
                 'background-color': '#0F1420',
@@ -564,7 +573,7 @@ with data_right:
             st.dataframe(
                 styled_hr,
                 use_container_width=True,
-                height=650,
+                height=hr_height,
                 column_config={
                     "Customer ID": st.column_config.TextColumn("Customer", width="medium"),
                     "Probability": st.column_config.TextColumn("Prob.", width="small"),
