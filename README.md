@@ -1,4 +1,4 @@
-<h1 align="center">📉 Telecom Customer Churn Prediction System</h1>
+<h1 align="center">Telecom Customer Churn Prediction System</h1>
 
 <p align="center">
   <img src="PLACEHOLDER_FOR_HERO_IMAGE_OR_SCREENSHOT" alt="Project Banner" width="100%">
@@ -14,7 +14,7 @@
 
 ---
 
-## 📑 Table of Contents
+## Table of Contents
 
 - [Problem Statement](#-problem-statement)
 - [Data Description](#-data-description)
@@ -28,7 +28,7 @@
 
 ---
 
-## 🚀 Problem Statement
+## Problem Statement
 
 Customer churn represents the event in which a subscriber terminates their relationship with a telecom provider. In subscription-based businesses, churn directly impacts:
 
@@ -50,7 +50,7 @@ _Losing a customer is significantly more expensive than offering a retention inc
 
 ---
 
-## 📊 Data Description
+## Data Description
 
 ### Dataset Overview
 
@@ -78,12 +78,16 @@ The original `Customer Status`, along with leakage-prone columns (`Churn Categor
 
 ---
 
-## 🔍 Exploratory Data Analysis (EDA)
+## Exploratory Data Analysis (EDA)
 
 ### 1. Class Imbalance
 
 - **Stayed:** ~73.5%
 - **Churned:** ~26.5%
+
+<p align="center">
+  <img src="images/class_imbalance.png" alt="Class Imbalance Distribution" width="60%">
+</p>
 
 Because of this imbalance, a naive model that predicts "Stayed" every time would achieve ~73% accuracy. Thus, we evaluate based on **ROC-AUC, Recall, and F1-score**.
 
@@ -110,7 +114,7 @@ Outliers were detected via the IQR method. Outliers in `Avg Monthly GB Download`
 
 ---
 
-## ⚙️ Feature Engineering & Preprocessing
+## Feature Engineering & Preprocessing
 
 ### 1. Engineered Features
 
@@ -128,7 +132,7 @@ Applied `StandardScaler` to ensure balanced contributions across features during
 
 ---
 
-## 🧠 Methodology
+## Methodology
 
 ### Data Split
 
@@ -143,7 +147,7 @@ Applied `StandardScaler` to ensure balanced contributions across features during
 
 ---
 
-## 📈 Model Evaluation & Optimization
+## Model Evaluation & Optimization
 
 ### Logistic Regression — Threshold Analysis
 
@@ -161,6 +165,10 @@ By lowering the decision threshold from 0.5 to 0.3, we traded a small drop in ov
 - **False Negatives:** 63 | **True Positives:** 310
   _(Only 63 churners missed!)_
 
+<p align="center">
+  <img src="images/cm_logistic_regression.png" alt="Confusion Matrix - Logistic Regression" width="60%">
+</p>
+
 ### Decision Tree — Depth Tuning
 
 Evaluated depths from 2 to 20, finding the optimal balance at **Depth 14**.
@@ -169,9 +177,13 @@ Evaluated depths from 2 to 20, finding the optimal balance at **Depth 14**.
 - **Depth 14:** Train Acc 0.889 | Test Acc 0.833 | Recall 0.61 | F1 0.66
 - Depths beyond 15 plateaued, indicating model capacity saturation.
 
+<p align="center">
+  <img src="images/cm_decision_tree.png" alt="Confusion Matrix - Decision Tree" width="60%">
+</p>
+
 ---
 
-## 🏆 Final Model Selected
+## Final Model Selected
 
 | Model                    | Accuracy   | Churn Recall | ROC-AUC    | Strength                 |
 | ------------------------ | ---------- | ------------ | ---------- | ------------------------ |
@@ -190,14 +202,14 @@ Evaluated depths from 2 to 20, finding the optimal balance at **Depth 14**.
 
 ---
 
-## 💻 Application Screenshots
+## Application Screenshots
 
 |                                        Dashboard                                         |                                     Prediction Results                                     |
 | :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------: |
 | <img src="PLACEHOLDER_FOR_DASHBOARD_SCREENSHOT" width="100%" alt="Dashboard Screenshot"> | <img src="PLACEHOLDER_FOR_PREDICTION_SCREENSHOT" width="100%" alt="Prediction Screenshot"> |
 |                           _System Overview & Upload Interface_                           |                         _Batch Prediction & Probabilities output_                          |
 
-## 🛠 Installation & Usage
+## Installation & Usage
 
 _(Assuming you have Python 3.8+ installed)_
 
@@ -214,14 +226,12 @@ cd customer-churn-prediction-mL
 pip install -r requirements.txt
 ```
 
-3. **Run the model pipeline:**
+3. **Run the Streamlit application:**
 
 ```bash
-python src/model_pipeline.py
+streamlit run app/app.py
 ```
 
-_This will train the models, save the artifacts (scaler, best model) inside the `artifacts` directory, and run a sample batch prediction._
+_This will launch the web application where you can upload customer data and get churn predictions._
 
 ---
-
-_Developed for the Gen-AI Capstone Project._
